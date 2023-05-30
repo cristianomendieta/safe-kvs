@@ -20,17 +20,11 @@ class Client:
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
         try:
-            context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+            context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH, cafile=SERVER_CERTFILE)
             context.load_cert_chain(certfile=CLIENT_CERTFILE, keyfile=CLIENT_KEYFILE)
 
-            # TODO: consertar erro de certificado
-
-            # desativa a verificação do certificado
-            context.check_hostname = False
-            context.verify_mode = ssl.CERT_NONE
-
             # estabelece uma conexão SSL/TLS segura
-            secure_socket = context.wrap_socket(self.socket, server_side=False, server_hostname=SERVER_HOST)
+            secure_socket = context.wrap_socket(self.socket, server_hostname=SERVER_HOST)
             secure_socket.connect((SERVER_HOST, SERVER_PORT))
             return secure_socket
 

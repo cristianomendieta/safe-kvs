@@ -36,8 +36,10 @@ class Server:
             print(f'Conexão estabelecida com {client_address}')
 
             try:
-                context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+                context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
+                context.verify_mode = ssl.CERT_REQUIRED
                 context.load_cert_chain(certfile=SERVER_CERTFILE, keyfile=SERVER_KEYFILE)
+                context.load_verify_locations(cafile=CLIENT_CERTFILE)
 
                 # estabelece uma conexão SSL/TLS
                 secure_socket = context.wrap_socket(client_socket, server_side=True)
