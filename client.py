@@ -32,26 +32,75 @@ class Client:
             print(f"Erro de SSL ao conectar ao servidor: {e}")
             return None
 
-    def send_request(self, request):
-        secure_socket = self.connect()
-
+    def send_request(self, request, secure_socket):
         if secure_socket:
-            try:
-                # envia requisição
-                secure_socket.send(json.dumps(request).encode(encoding='utf-8'))
+            # envia requisição
+            secure_socket.send(json.dumps(request).encode(encoding='utf-8'))
 
-                # recebe resposta
-                response = secure_socket.recv(4096)
-                print(f'Resposta do servidor: {response.decode(encoding="utf-8")}')
+            # recebe resposta
+            response = secure_socket.recv(4096)
+            print(f'Resposta do servidor: {response.decode(encoding="utf-8")}')
 
-            finally:
-                # encerra conexão com o servidor
-                secure_socket.shutdown(socket.SHUT_RDWR)
-                secure_socket.close()
+    def menu_interface(self):
+        print("1. Create")
+        print("2. Get")
+        print("3. Update")
+        print("4. Delete")
+        print("5. Exit")
+
+        try:
+            choice = input("Enter choice: ")
+            choice = int(choice)
+        except ValueError:
+            choice = 0
+        return choice
+
+    def request_create(self, secure_socket, client):
+        print("Enter key: ")
+        key = input()
+        print("Enter value: ")
+        value = input()
+        request = {'operation': 'create', 'key': key, 'value': value}
+        client.send_request(request, secure_socket)
+
+    def request_get(self, secure_socket, client):
+        print("Enter key: ")
+        key = input()
+        request = {'operation': 'get', 'key': key}
+        client.send_request(request, secure_socket)
+
+    def request_update(self, secure_socket, client):
+        print("Enter key: ")
+        key = input()
+        print("Enter value: ")
+        value = input()
+        request = {'operation': 'update', 'key': key, 'value': value}
+        client.send_request(request, secure_socket)
+
+    def request_delete(self, secure_socket, client):
+        print("Enter key: ")
+        key = input()
+        request = {'operation': 'delete', 'key': key}
+        client.send_request(request, secure_socket)
 
 if __name__ == '__main__':
-    request = {'operation': 'get', 'key': 'data1'}
-
     client = Client()
+    secure_socket = client.connect()
 
-    client.send_request(request)
+    userInput = 0
+    while userInput != 5:
+        userInput = int(client.menu_interface())
+        if userInput == 1:
+            client.request_create(secure_socket, client)
+        elif userInput == 2:
+            client.request_get(secure_socket, client)
+        elif userInput == 3:
+            client.request_update(secure_socket, client)
+        elif userInput == 4:
+            client.request_delete(secure_socket, client)
+        else:
+            print("Invalid input")
+    
+    secure_socket.shutdown(socket.SHUT_RDWR)
+    secure_socket.close()
+    print("Connection closed")

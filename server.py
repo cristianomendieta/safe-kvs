@@ -1,6 +1,7 @@
 import socket
 import ssl
 import json
+import time
 
 CLIENT_CERTFILE = './resources/client.crt'
 CLIENT_KEYFILE = './resources/client.key'
@@ -48,6 +49,7 @@ class Server:
 
             finally:
                 # encerra conexão com o cliente
+                print("Encerrando conexão com o cliente...")
                 secure_socket.shutdown(socket.SHUT_RDWR)
                 secure_socket.close()
 
@@ -55,12 +57,23 @@ class Server:
         while True:
             # recebe a solicitação do cliente
             request = connection.recv(4096)
-            if not request:
+            initTime = time.time()
+            while not request:
+                # if time.time() - initTime > 30:
+                print("Conexão encerrada pelo cliente")
                 break
+                # request = connection.recv(4096)
 
             request_data = json.loads(request.decode('utf-8'))
 
             operation = request_data.get('operation')
+
+            # realiza a operação de criação no servidor
+            if operation == 'create':
+                key = request_data.get('key')
+                value = request_data.get('value')
+                self.data[key] = value
+                response = {'status': 'success', 'message': 'Valor criado com sucesso'}
 
             # realiza a operação de consulta no servidor
             if operation == 'get':
@@ -90,7 +103,7 @@ class Server:
     def get_value(self, key):
         return self.data.get(key)
 
-    def update_value(self, key):
+    def update_value(self, key, value):
         pass
 
     def delete_key(self, key):
