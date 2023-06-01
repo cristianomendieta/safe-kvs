@@ -60,11 +60,9 @@ class Server:
             # recebe a solicitação do cliente
             request = connection.recv(4096)
             initTime = time.time()
-            while not request:
-                # if time.time() - initTime > 30:
+            if not request:
                 print("Conexão encerrada pelo cliente")
-                break
-                # request = connection.recv(4096)
+                return
 
             request_data = json.loads(request.decode('utf-8'))
 
@@ -99,9 +97,9 @@ class Server:
             connection.send(json.dumps(response, ensure_ascii=False).encode(encoding='utf-8'))
 
     def create_value(self, value):
-        value_to_create = json.loads(value)
-
         try:
+            value_to_create = json.loads(value)
+
             new_id = self.data['id'].max() + 1
             value_to_create['id'] = new_id
             self.data = pd.concat([self.data, pd.DataFrame([value_to_create])], ignore_index=True)
@@ -114,35 +112,47 @@ class Server:
         return response
 
     def get_value(self, key):
-        data_key = self.data.loc[self.data['id'] == int(key)].to_dict('records')
-        
-        if data_key:
-            response = {'status': 'success', 'message': 'Valor obtido com sucesso', 'value': data_key[0]}
-        else:
-            response = {'status': 'error', 'message': 'Chave não encontrada'}
+        try:
+            data_key = self.data.loc[self.data['id'] == int(key)].to_dict('records')
+            if data_key:
+                response = {'status': 'success', 'message': 'Valor obtido com sucesso', 'value': data_key[0]}
+            else:
+                response = {'status': 'error', 'message': 'Chave não encontrada'}
+        except Exception as e:
+            print(e)
+            response = {'status': 'error', 'message': 'Não foi possível obter o registro'}
+
         return response
                 
     def update_value(self, key, value):
-        data_key = self.data.loc[self.data['id'] == int(key)].to_dict('records')
+        try:
+            data_key = self.data.loc[self.data['id'] == int(key)].to_dict('records')
 
-        if data_key:
-            values_to_update = json.loads(value)
-            for k, val in values_to_update.items():
-                self.data.loc[self.data['id'] == int(key), k] = val
-            self.data.to_csv('db.csv', index=False)
-            response = {'status': 'success', 'message': 'Registro atualizado com sucesso'}
-        else:
-            response = {'status': 'error', 'message': 'Chave não encontrada'}
+            if data_key:
+                values_to_update = json.loads(value)
+                for k, val in values_to_update.items():
+                    self.data.loc[self.data['id'] == int(key), k] = val
+                self.data.to_csv('db.csv', index=False)
+                response = {'status': 'success', 'message': 'Registro atualizado com sucesso'}
+            else:
+                response = {'status': 'error', 'message': 'Chave não encontrada'}
+        except Exception as e:
+            print(e)
+            response = {'status': 'error', 'message': 'Não foi possível atualizar o registro'}
 
         return response
 
     def delete_key(self, key):
-        if self.data.loc[self.data['id'] == int(key)].empty:
-            response = {'status': 'error', 'message': 'Chave não encontrada'}
-        else:
-            data_drop_key = self.data.loc[self.data['id'] != int(key)]
-            data_drop_key.to_csv('db.csv', index=False)
-            response = {'status': 'success', 'message': f"Chave {key} excluída com sucesso"}
+        try: 
+            if self.data.loc[self.data['id'] == int(key)].empty:
+                response = {'status': 'error', 'message': 'Chave não encontrada'}
+            else:
+                data_drop_key = self.data.loc[self.data['id'] != int(key)]
+                data_drop_key.to_csv('db.csv', index=False)
+                response = {'status': 'success', 'message': f"Chave {key} excluída com sucesso"}
+        except Exception as e:
+            print(e)
+            response = {'status': 'error', 'message': 'Não foi possível excluir o registro'}
 
         return response
     

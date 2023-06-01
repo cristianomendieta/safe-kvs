@@ -49,35 +49,35 @@ class Client:
         print("5. Exit")
 
         try:
-            choice = input("Enter choice: ")
+            choice = input("Insira a opção: ")
             choice = int(choice)
         except ValueError:
             choice = 0
         return choice
 
     def request_create(self, secure_socket, client):
-        print("Enter value: ")
+        print("Insira o valor no formato json: ")
         value = input()
         request = {'operation': 'create', 'value': value}
         client.send_request(request, secure_socket)
 
     def request_get(self, secure_socket, client):
-        print("Enter key: ")
+        print("Insira a chave: ")
         key = input()
         request = {'operation': 'get', 'key': key}
         client.send_request(request, secure_socket)
 
     def request_update(self, secure_socket, client):
-        print("Enter key: ")
+        print("Insira a chave: ")
         key = input()
-        print("Enter value: ")
+        print("Insira o valor no formato json: ")
         value = input()
         print(value)
         request = {'operation': 'update', 'key': key, 'value': value}
         client.send_request(request, secure_socket)
 
     def request_delete(self, secure_socket, client):
-        print("Enter key: ")
+        print("Insira a chave: ")
         key = input()
         request = {'operation': 'delete', 'key': key}
         client.send_request(request, secure_socket)
@@ -97,9 +97,11 @@ if __name__ == '__main__':
             client.request_update(secure_socket, client)
         elif userInput == 4:
             client.request_delete(secure_socket, client)
+        elif userInput == 5:
+            print("Encerrando conexão com o servidor...")
         else:
-            print("Invalid input")
+            print("Valor inválido")
     
     secure_socket.shutdown(socket.SHUT_RDWR)
     secure_socket.close()
-    print("Connection closed")
+    print("Conexão finalizada")
