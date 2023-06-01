@@ -56,11 +56,9 @@ class Client:
         return choice
 
     def request_create(self, secure_socket, client):
-        print("Enter key: ")
-        key = input()
         print("Enter value: ")
         value = input()
-        request = {'operation': 'create', 'key': key, 'value': value}
+        request = {'operation': 'create', 'value': value}
         client.send_request(request, secure_socket)
 
     def request_get(self, secure_socket, client):
@@ -74,6 +72,7 @@ class Client:
         key = input()
         print("Enter value: ")
         value = input()
+        print(value)
         request = {'operation': 'update', 'key': key, 'value': value}
         client.send_request(request, secure_socket)
 

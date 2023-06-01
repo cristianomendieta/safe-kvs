@@ -2,6 +2,7 @@ import socket
 import ssl
 import json
 import time
+import pandas as pd
 
 CLIENT_CERTFILE = './resources/client.crt'
 CLIENT_KEYFILE = './resources/client.key'
@@ -11,7 +12,7 @@ SERVER_KEYFILE = './resources/server.key'
 SERVER_HOST = 'localhost'
 SERVER_PORT = 8080
 
-DB_PATH = './db.json'
+DB_PATH = './db.csv'
 
 class Server:
     def __init__(self):
@@ -19,8 +20,9 @@ class Server:
         self.data = self.load_data(DB_PATH)
 
     def load_data(self, path):
-        with open(path, 'r') as f:
-            return json.load(f)
+        data = pd.read_csv(path)
+
+        return data
 
     def start(self):
         # cria um socket TCP/IP
@@ -70,29 +72,25 @@ class Server:
 
             # realiza a operação de criação no servidor
             if operation == 'create':
-                key = request_data.get('key')
+                print("Requisição de criação recebida")
                 value = request_data.get('value')
-                self.data[key] = value
-                response = {'status': 'success', 'message': 'Valor criado com sucesso'}
-
+                response = self.create_value(value)
+                
             # realiza a operação de consulta no servidor
-            if operation == 'get':
+            elif operation == 'get':
                 key = request_data.get('key')
-                value = self.get_value(key)
-                response = {'status': 'success', 'message': 'Valor obtido com sucesso', 'value': value}
+                response = self.get_value(key)
 
             # realiza a operação de update no servidor
             elif operation == 'update':
                 key = request_data.get('key')
                 value = request_data.get('value')
-                self.update_value(key, value)
-                response = {'status': 'success', 'message': 'Valor definido com sucesso'}
+                response = self.update_value(key, value)
 
             # realiza a operação de delete no servidor
             elif operation == 'delete':
                 key = request_data.get('key')
-                self.delete_key(key)
-                response = {'status': 'success', 'message': 'Chave excluída com sucesso'}
+                response = self.delete_key(key)
 
             else:
                 response = {'status': 'error', 'message': 'Operação inválida'}
@@ -100,15 +98,54 @@ class Server:
             # Enviar a resposta para o cliente
             connection.send(json.dumps(response, ensure_ascii=False).encode(encoding='utf-8'))
 
-    def get_value(self, key):
-        return self.data.get(key)
+    def create_value(self, value):
+        value_to_create = json.loads(value)
 
+        try:
+            new_id = self.data['id'].max() + 1
+            value_to_create['id'] = new_id
+            self.data = pd.concat([self.data, pd.DataFrame([value_to_create])], ignore_index=True)
+            self.data.to_csv('db.csv', index=False)
+            response = {'status': 'success', 'message': 'Registro criado com sucesso'}
+        except Exception as e:
+            print(e)
+            response = {'status': 'error', 'message': 'Não foi possível criar o registro'}
+
+        return response
+
+    def get_value(self, key):
+        data_key = self.data.loc[self.data['id'] == int(key)].to_dict('records')
+        
+        if data_key:
+            response = {'status': 'success', 'message': 'Valor obtido com sucesso', 'value': data_key[0]}
+        else:
+            response = {'status': 'error', 'message': 'Chave não encontrada'}
+        return response
+                
     def update_value(self, key, value):
-        pass
+        data_key = self.data.loc[self.data['id'] == int(key)].to_dict('records')
+
+        if data_key:
+            values_to_update = json.loads(value)
+            for k, val in values_to_update.items():
+                self.data.loc[self.data['id'] == int(key), k] = val
+            self.data.to_csv('db.csv', index=False)
+            response = {'status': 'success', 'message': 'Registro atualizado com sucesso'}
+        else:
+            response = {'status': 'error', 'message': 'Chave não encontrada'}
+
+        return response
 
     def delete_key(self, key):
-        pass
+        if self.data.loc[self.data['id'] == int(key)].empty:
+            response = {'status': 'error', 'message': 'Chave não encontrada'}
+        else:
+            data_drop_key = self.data.loc[self.data['id'] != int(key)]
+            data_drop_key.to_csv('db.csv', index=False)
+            response = {'status': 'success', 'message': f"Chave {key} excluída com sucesso"}
 
+        return response
+    
 if __name__ == '__main__':
     server = Server()
 
