@@ -176,13 +176,29 @@
         </p>
 
         <p style="font-size: 20px;">
-            Utilizando o wireshark para fazer o sniff da comunicação entre o cliente e o servidor é possível observar que a criptografia realmente funciona.
+            Utilizando o wireshark para fazer o sniff da comunicação entre o cliente e o servidor é possível observar que a criptografia realmente funciona, garantindo
+            o sigilo.
             Mensagem criptografada utilizando TLS:
             <img src="./imgs/crypt.png" alt="Wireshark" style="width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;">
             Mensagem não criptografada:
             <img src="./imgs/raw.png" alt="Raw" style="width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;">
         </p>
 
+        <p style="font-size: 20px;">
+            Utilizando a flag -c para o cliente podemos simular um atacante, trocando o certificado do cliente para outro que não é reconhecido pelo servidor,
+            desta forma o servidor não aceita a conexão e o atacante não consegue se comunicar com o servidor e a autenticidade é garantida.
+            <img src="./imgs/attack.png" alt="Ataque" style="width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;">
+        </p>
+
+        <p style="font-size: 20px;">
+            Utilizando a flag --modify_bytes True para o cliente podemos simular uma troca de bytes do payload, desta forma o servidor não consegue descriptografar
+            a mensagem recebida do cliente corretamente, gerando um erro e a integridade é garantida.
+            <img src="./imgs/bytesAttack.png" alt="Ataque" style="width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;">
+        </p>
+
+        <h2>Códigos em Python</h2>
+        <a href="client.py.txt">Código do servidor</a>
+        <a href="server.py.txt">Código do cliente</a>
     </body>
 </html>
 
