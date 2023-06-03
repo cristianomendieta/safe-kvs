@@ -1,0 +1,47 @@
+1. Create
+2. Get
+3. Update
+4. Delete
+5. Exit
+Insira a opção: 1
+Insira o valor no formato json: 
+{"nome":"Fulano", "idade": 21, "email": "email@teste.com"}
+Resposta do servidor: {"status": "success", "message": "Registro criado com sucesso"}
+1. Create
+2. Get
+3. Update
+4. Delete
+5. Exit
+Insira a opção: 2
+Insira a chave: 
+1
+Resposta do servidor: {"status": "success", "message": "Valor obtido com sucesso", "value": {"id": 1, "nome": "João", "idade": 30, "email": "joao@email.com", "telefone": 111111111.0}}
+1. Create
+2. Get
+3. Update
+4. Delete
+5. Exit
+Insira a opção: 3
+Insira a chave: 
+3
+Insira o valor no formato json: 
+{"nome": "Carlos Eduardo", "idade": 25}
+{"nome": "Carlos Eduardo", "idade": 25}
+Resposta do servidor: {"status": "success", "message": "Registro atualizado com sucesso"}
+1. Create
+2. Get
+3. Update
+4. Delete
+5. Exit
+Insira a opção: 4
+Insira a chave: 
+7
+Resposta do servidor: {"status": "success", "message": "Chave 7 excluída com sucesso"}
+1. Create
+2. Get
+3. Update
+4. Delete
+5. Exit
+Insira a opção: 5
+Encerrando conexão com o servidor...
+Conexão finalizada

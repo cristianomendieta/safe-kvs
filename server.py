@@ -1,3 +1,6 @@
+# Cristiano Creppo Mendieta GRR20190394
+# Vinicius Matheus Comarella Ferreira GRR20196048
+
 import socket
 import ssl
 import json
@@ -94,17 +97,20 @@ class Server:
                 
             # realiza a operação de consulta no servidor
             elif operation == 'get':
+                print("Requisição de consulta recebida")
                 key = request_data.get('key')
                 response = self.get_value(key)
 
             # realiza a operação de update no servidor
             elif operation == 'update':
+                print("Requisição de update recebida")
                 key = request_data.get('key')
                 value = request_data.get('value')
                 response = self.update_value(key, value)
 
             # realiza a operação de delete no servidor
             elif operation == 'delete':
+                print("Requisição de delete recebida")
                 key = request_data.get('key')
                 response = self.delete_key(key)
 

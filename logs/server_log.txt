@@ -1,0 +1,12 @@
+Servidor aguardando conexões em localhost:8080...
+Conexão estabelecida com ('127.0.0.1', 58192)
+Requisição de criação recebida
+Requisição de consulta recebida
+Requisição de update recebida
+Requisição de delete recebida
+Conexão encerrada pelo cliente
+Encerrando conexão com o cliente...
+Conexão estabelecida com ('127.0.0.1', 58271)
+Erro de SSL ao conectar ao servidor: [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: authority and subject key identifier mismatch (_ssl.c:997)
+Conexão estabelecida com ('127.0.0.1', 58297)
+Erro de criptografia: Falha na descriptografia. A mensagem foi alterada.

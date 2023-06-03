@@ -1,3 +1,6 @@
+# Cristiano Creppo Mendieta GRR20190394
+# Vinicius Matheus Comarella Ferreira GRR20196048
+
 import socket
 import ssl
 import json
@@ -25,6 +28,8 @@ class Client:
         self.client_flag = client_flag
 
     def connect(self):
+        global CLIENT_CERTFILE
+        global CLIENT_KEYFILE
         
         if self.client_flag:
             CLIENT_KEYFILE = ROGUE_CLIENT_KEYFILE
@@ -114,7 +119,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--modify_bytes', default=False, action='store', help='modify message bytes')
-    parser.add_argument('-c', '--client', action='store_true',  help='define client')
+    parser.add_argument('-c', '--client', default=False, action='store_true',  help='define client')
 
     args = parser.parse_args()
         
