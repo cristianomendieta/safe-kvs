@@ -185,6 +185,10 @@
         </p>
 
         <p style="font-size: 20px;">
+            Para podermos demonstrar a integridade da comunicação entre cliente e servidor, foi necessário adicionar à nossa aplicação a criptografia e descriptografia das mensagem enviadas
+            pelo cliente ao servidor. Para isso, foi utilizado a biblioteca cryptography. Dessa forma, apesar da comunicação TLS já garantir a integridade da comunicação,
+            e utilizar a criptografia em seus processos internos, conseguimos simular um ataque de integridade, onde o cliente envia uma mensagem criptografada para o servidor
+            e os bytes são alterados, assim, o servidor não consegue descriptografar a mensagem, gerando um erro e garantindo a integridade da comunicação.
             Utilizando a flag -c para o cliente podemos simular um atacante, trocando o certificado do cliente para outro que não é reconhecido pelo servidor,
             desta forma o servidor não aceita a conexão e o atacante não consegue se comunicar com o servidor e a autenticidade é garantida.
             <img src="./imgs/attack.png" alt="Ataque" style="width: 100%; height: auto; display: block; margin-left: auto; margin-right: auto;">
