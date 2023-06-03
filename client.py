@@ -44,7 +44,7 @@ class Client:
             context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH, cafile=SERVER_CERTFILE)
             context.load_cert_chain(certfile=CLIENT_CERTFILE, keyfile=CLIENT_KEYFILE)
 
-            # estabelece uma conexão SSL/TLS segura
+            # estabelece uma conexao SSL/TLS segura
             secure_socket = context.wrap_socket(self.socket, server_hostname=SERVER_HOST)
             secure_socket.connect((SERVER_HOST, SERVER_PORT))
             return secure_socket
@@ -59,15 +59,15 @@ class Client:
 
             mensagem_criptografada = cipher_suite.encrypt(request)
             if self.modify_message:
-                # Alterar alguns bytes aleatórios na mensagem criptografada
+                # Alterar alguns bytes aleatorios na mensagem criptografada
                 mensagem_alterada = bytearray(mensagem_criptografada)
                 mensagem_alterada[5] = 42  # Altera o sexto byte 
 
-                # envia requisição
+                # envia requisicao
                 secure_socket.send(mensagem_alterada)
 
             else:
-                # envia requisição
+                # envia requisicao
                 secure_socket.send(mensagem_criptografada)
 
             # recebe resposta
@@ -138,10 +138,10 @@ if __name__ == '__main__':
         elif userInput == 4:
             client.request_delete(secure_socket, client)
         elif userInput == 5:
-            print("Encerrando conexão com o servidor...")
+            print("Encerrando conexao com o servidor...")
         else:
-            print("Valor inválido")
+            print("Valor invalido")
     
     secure_socket.shutdown(socket.SHUT_RDWR)
     secure_socket.close()
-    print("Conexão finalizada")
+    print("conexao finalizada")

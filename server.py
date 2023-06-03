@@ -42,13 +42,13 @@ class Server:
 
         self.socket.bind((SERVER_HOST, SERVER_PORT))
 
-        # aguarda conexão de clientes
+        # aguarda conexao de clientes
         self.socket.listen(1)
         print(f'Servidor aguardando conexões em {SERVER_HOST}:{SERVER_PORT}...')
 
         while True:
             client_socket, client_address = self.socket.accept()
-            print(f'Conexão estabelecida com {client_address}')
+            print(f'conexao estabelecida com {client_address}')
 
             try:
                 context = ssl.create_default_context(ssl.Purpose.CLIENT_AUTH)
@@ -56,13 +56,13 @@ class Server:
                 context.load_cert_chain(certfile=SERVER_CERTFILE, keyfile=SERVER_KEYFILE)
                 context.load_verify_locations(cafile=CLIENT_CERTFILE)
 
-                # estabelece uma conexão SSL/TLS
+                # estabelece uma conexao SSL/TLS
                 secure_socket = context.wrap_socket(client_socket, server_side=True)
 
                 self.handle_client(secure_socket)
 
-                # encerra conexão com o cliente
-                print("Encerrando conexão com o cliente...")
+                # encerra conexao com o cliente
+                print("Encerrando conexao com o cliente...")
                 secure_socket.shutdown(socket.SHUT_RDWR)
                 secure_socket.close()
 
@@ -74,11 +74,11 @@ class Server:
 
     def handle_client(self, connection):
         while True:
-            # recebe a solicitação do cliente
+            # recebe a solicitacao do cliente
             request = connection.recv(4096)
 
             if not request:
-                print("Conexão encerrada pelo cliente")
+                print("conexao encerrada pelo cliente")
                 return
             try:
                 mensagem_descriptografada = cipher_suite.decrypt(request)
@@ -89,33 +89,33 @@ class Server:
 
             operation = request_data.get('operation')
 
-            # realiza a operação de criação no servidor
+            # realiza a operacao de criação no servidor
             if operation == 'create':
                 print("Requisição de criação recebida")
                 value = request_data.get('value')
                 response = self.create_value(value)
                 
-            # realiza a operação de consulta no servidor
+            # realiza a operacao de consulta no servidor
             elif operation == 'get':
                 print("Requisição de consulta recebida")
                 key = request_data.get('key')
                 response = self.get_value(key)
 
-            # realiza a operação de update no servidor
+            # realiza a operacao de update no servidor
             elif operation == 'update':
                 print("Requisição de update recebida")
                 key = request_data.get('key')
                 value = request_data.get('value')
                 response = self.update_value(key, value)
 
-            # realiza a operação de delete no servidor
+            # realiza a operacao de delete no servidor
             elif operation == 'delete':
                 print("Requisição de delete recebida")
                 key = request_data.get('key')
                 response = self.delete_key(key)
 
             else:
-                response = {'status': 'error', 'message': 'Operação inválida'}
+                response = {'status': 'error', 'message': 'operacao invalida'}
 
             # Enviar a resposta para o cliente
             connection.send(json.dumps(response, ensure_ascii=False).encode(encoding='utf-8'))
@@ -131,7 +131,7 @@ class Server:
             response = {'status': 'success', 'message': 'Registro criado com sucesso'}
         except Exception as e:
             print(e)
-            response = {'status': 'error', 'message': 'Não foi possível criar o registro'}
+            response = {'status': 'error', 'message': 'nao foi possivel criar o registro'}
 
         return response
 
@@ -141,10 +141,10 @@ class Server:
             if data_key:
                 response = {'status': 'success', 'message': 'Valor obtido com sucesso', 'value': data_key[0]}
             else:
-                response = {'status': 'error', 'message': 'Chave não encontrada'}
+                response = {'status': 'error', 'message': 'Chave nao encontrada'}
         except Exception as e:
             print(e)
-            response = {'status': 'error', 'message': 'Não foi possível obter o registro'}
+            response = {'status': 'error', 'message': 'nao foi possivel obter o registro'}
 
         return response
                 
@@ -159,24 +159,24 @@ class Server:
                 self.data.to_csv('db.csv', index=False)
                 response = {'status': 'success', 'message': 'Registro atualizado com sucesso'}
             else:
-                response = {'status': 'error', 'message': 'Chave não encontrada'}
+                response = {'status': 'error', 'message': 'Chave nao encontrada'}
         except Exception as e:
             print(e)
-            response = {'status': 'error', 'message': 'Não foi possível atualizar o registro'}
+            response = {'status': 'error', 'message': 'nao foi possivel atualizar o registro'}
 
         return response
 
     def delete_key(self, key):
         try: 
             if self.data.loc[self.data['id'] == int(key)].empty:
-                response = {'status': 'error', 'message': 'Chave não encontrada'}
+                response = {'status': 'error', 'message': 'Chave nao encontrada'}
             else:
                 data_drop_key = self.data.loc[self.data['id'] != int(key)]
                 data_drop_key.to_csv('db.csv', index=False)
-                response = {'status': 'success', 'message': f"Chave {key} excluída com sucesso"}
+                response = {'status': 'success', 'message': f"Chave {key} excluida com sucesso"}
         except Exception as e:
             print(e)
-            response = {'status': 'error', 'message': 'Não foi possível excluir o registro'}
+            response = {'status': 'error', 'message': 'nao foi possivel excluir o registro'}
 
         return response
     
