@@ -1,6 +1,8 @@
 import socket
 import ssl
 import json
+from cryptography.fernet import Fernet
+import argparse
 
 CLIENT_CERTFILE = './resources/client.crt'
 CLIENT_KEYFILE = './resources/client.key'
@@ -9,9 +11,14 @@ SERVER_CERTFILE = './resources/server.crt'
 SERVER_HOST = 'localhost'
 SERVER_PORT = 8080
 
+KEY = b'xuIqO3jsp4oYrMYnxZq0fSoP2j1hyttmAe5sCHcj6w8='
+
+cipher_suite = Fernet(KEY)
+
 class Client:
-    def __init__(self):
+    def __init__(self, modify_message):
         self.socket = None
+        self.modify_message = modify_message
 
     def connect(self):
         # cria um socket TCP/IP
@@ -34,8 +41,20 @@ class Client:
 
     def send_request(self, request, secure_socket):
         if secure_socket:
-            # envia requisição
-            secure_socket.send(json.dumps(request).encode(encoding='utf-8'))
+            request = json.dumps(request).encode(encoding='utf-8')
+
+            mensagem_criptografada = cipher_suite.encrypt(request)
+            if self.modify_message:
+                # Alterar alguns bytes aleatórios na mensagem criptografada
+                mensagem_alterada = bytearray(mensagem_criptografada)
+                mensagem_alterada[5] = 42  # Altera o sexto byte 
+
+                # envia requisição
+                secure_socket.send(mensagem_alterada)
+
+            else:
+                # envia requisição
+                secure_socket.send(mensagem_criptografada)
 
             # recebe resposta
             response = secure_socket.recv(4096)
@@ -83,7 +102,15 @@ class Client:
         client.send_request(request, secure_socket)
 
 if __name__ == '__main__':
-    client = Client()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--modify_bytes', default=False, action='store',
+                    help='modify message bytes')
+
+    args = parser.parse_args()
+
+    print(args.modify_bytes)
+        
+    client = Client(args.modify_bytes)
     secure_socket = client.connect()
 
     userInput = 0

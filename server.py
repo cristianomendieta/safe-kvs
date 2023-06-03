@@ -1,8 +1,8 @@
 import socket
 import ssl
 import json
-import time
 import pandas as pd
+from cryptography.fernet import Fernet
 
 CLIENT_CERTFILE = './resources/client.crt'
 CLIENT_KEYFILE = './resources/client.key'
@@ -13,6 +13,15 @@ SERVER_HOST = 'localhost'
 SERVER_PORT = 8080
 
 DB_PATH = './db.csv'
+
+KEY = b'xuIqO3jsp4oYrMYnxZq0fSoP2j1hyttmAe5sCHcj6w8='
+
+cipher_suite = Fernet(KEY)
+
+
+class CryptographyException(Exception):
+    def __init__(self, message):
+        self.message = message
 
 class Server:
     def __init__(self):
@@ -49,22 +58,31 @@ class Server:
 
                 self.handle_client(secure_socket)
 
-            finally:
                 # encerra conexão com o cliente
                 print("Encerrando conexão com o cliente...")
                 secure_socket.shutdown(socket.SHUT_RDWR)
                 secure_socket.close()
 
+            except ssl.SSLError as e:
+                print(f"Erro de SSL ao conectar ao servidor: {e}")
+            except CryptographyException as e:
+                print(f"Erro de criptografia: {e}")
+
+
     def handle_client(self, connection):
         while True:
             # recebe a solicitação do cliente
             request = connection.recv(4096)
-            initTime = time.time()
+
             if not request:
                 print("Conexão encerrada pelo cliente")
                 return
+            try:
+                mensagem_descriptografada = cipher_suite.decrypt(request)
+            except:
+                raise CryptographyException('Falha na descriptografia. A mensagem foi alterada.')
 
-            request_data = json.loads(request.decode('utf-8'))
+            request_data = json.loads(mensagem_descriptografada.decode('utf-8'))
 
             operation = request_data.get('operation')
 
