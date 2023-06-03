@@ -4,6 +4,9 @@ import json
 from cryptography.fernet import Fernet
 import argparse
 
+
+ROGUE_CLIENT_CERTFILE = './resources/invasor.crt'
+ROGUE_CLIENT_KEYFILE = './resources/invasor.key'
 CLIENT_CERTFILE = './resources/client.crt'
 CLIENT_KEYFILE = './resources/client.key'
 SERVER_CERTFILE = './resources/server.crt'
@@ -16,17 +19,23 @@ KEY = b'xuIqO3jsp4oYrMYnxZq0fSoP2j1hyttmAe5sCHcj6w8='
 cipher_suite = Fernet(KEY)
 
 class Client:
-    def __init__(self, modify_message):
+    def __init__(self, modify_message, client_flag):
         self.socket = None
         self.modify_message = modify_message
+        self.client_flag = client_flag
 
     def connect(self):
-        # cria um socket TCP/IP
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
-        self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        
+        if self.client_flag:
+            CLIENT_KEYFILE = ROGUE_CLIENT_KEYFILE
+            CLIENT_CERTFILE = ROGUE_CLIENT_CERTFILE
 
         try:
+            # cria um socket TCP/IP
+            self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+            self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+
             context = ssl.create_default_context(ssl.Purpose.SERVER_AUTH, cafile=SERVER_CERTFILE)
             context.load_cert_chain(certfile=CLIENT_CERTFILE, keyfile=CLIENT_KEYFILE)
 
@@ -103,14 +112,13 @@ class Client:
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--modify_bytes', default=False, action='store',
-                    help='modify message bytes')
+
+    parser.add_argument('--modify_bytes', default=False, action='store', help='modify message bytes')
+    parser.add_argument('-c', '--client', action='store_true',  help='define client')
 
     args = parser.parse_args()
-
-    print(args.modify_bytes)
         
-    client = Client(args.modify_bytes)
+    client = Client(args.modify_bytes, args.client)
     secure_socket = client.connect()
 
     userInput = 0
